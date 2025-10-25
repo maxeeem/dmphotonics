@@ -4424,4 +4424,57 @@ CA</p>
 
 
 
-<div id="stcpDiv" style="position: absolute; top: -1999px; left: -1988px;">ShareThis Copy and Paste</div><div id="stwrapper" class="stwrapper stwrapper4x" style="display: none;"><iframe allowtransparency="true" id="stLframe" class="stLframe" name="stLframe" frameborder="0" scrolling="no" src="https://ws.sharethis.com/secure/index.html"></iframe></div><div id="stOverlay" onclick="javascript:stWidget.closeWidget();"></div></body></html>
+<div id="stcpDiv" style="position: absolute; top: -1999px; left: -1988px;">ShareThis Copy and Paste</div><div id="stwrapper" class="stwrapper stwrapper4x" style="display: none;"><iframe allowtransparency="true" id="stLframe" class="stLframe" name="stLframe" frameborder="0" scrolling="no" src="https://ws.sharethis.com/secure/index.html"></iframe></div><div id="stOverlay" onclick="javascript:stWidget.closeWidget();"></div>
+
+<!-- ChatKit Container -->
+<div id="chat-container"></div>
+
+<script type="text/javascript">
+// This replaces the backend from the previous example
+async function getChatKitClientSecret() {
+    try {
+        // The path to your Netlify Function
+        const response = await fetch('/.netlify/functions/chatkit-session', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        });
+        
+        if (!response.ok) {
+            let errorMessage = 'Failed to get client secret';
+            try {
+                const data = await response.json();
+                errorMessage = data.error || errorMessage;
+            } catch (jsonError) {
+                // Response was not valid JSON, use status text
+                errorMessage = response.statusText || errorMessage;
+            }
+            throw new Error(errorMessage);
+        }
+        
+        const data = await response.json();
+        return data.client_secret;
+    } catch (error) {
+        // Handle network errors and other failures
+        if (error instanceof Error) {
+            throw error;
+        }
+        throw new Error('Failed to connect to chat service');
+    }
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+    // This code remains the same as the previous example
+    const chatContainer = document.getElementById('chat-container');
+    const chatkitElement = document.createElement('openai-chatkit');
+
+    chatkitElement.setOptions({
+        api: {
+            getClientSecret: getChatKitClientSecret
+        }
+    });
+
+    chatContainer.appendChild(chatkitElement);
+});
+</script>
+
+</body></html>
