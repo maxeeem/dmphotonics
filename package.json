@@ -1,0 +1,8 @@
+{
+  "name": "dmphotonics",
+  "version": "1.0.0",
+  "description": "Del Mar Photonics website with Netlify Functions",
+  "dependencies": {
+    "openai": "^4.0.0"
+  }
+}
