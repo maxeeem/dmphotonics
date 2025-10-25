@@ -14,15 +14,17 @@ exports.handler = async (event, context) => {
 
     try {
         // Retrieve API keys from Netlify's environment variables
-        const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+        const apiKey = process.env.OPENAI_API_KEY;
         const chatkitWorkflowId = process.env.CHATKIT_WORKFLOW_ID;
 
-        if (!openai.apiKey) {
+        if (!apiKey) {
             throw new Error("OpenAI API key not configured.");
         }
         if (!chatkitWorkflowId) {
             throw new Error("ChatKit workflow ID not configured.");
         }
+
+        const openai = new OpenAI({ apiKey });
 
         // Create the ChatKit session
         const session = await openai.chatkit.sessions.create({
