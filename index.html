@@ -118,11 +118,31 @@
     }
     
     @media (max-width: 768px) {
+      #get-quote-btn {
+        top: 10px;
+        right: 10px;
+        padding: 10px 20px;
+        font-size: 14px;
+      }
+      
       #chat-container {
-        width: calc(100vw - 40px);
+        top: 0;
+        right: 0;
+        left: 0;
+        bottom: 0;
+        width: 100vw;
+        height: 100vh;
         min-width: unset;
-        right: 20px;
-        left: 20px;
+        max-width: unset;
+        border-radius: 0;
+      }
+      
+      #chat-header {
+        padding: 12px 16px;
+      }
+      
+      #chat-header h3 {
+        font-size: 16px;
       }
     }
   </style>
