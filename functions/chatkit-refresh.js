@@ -1,8 +1,5 @@
 const OpenAI = require('openai');
 
-// Netlify will automatically handle the installation of this package
-// as long as it's a dependency in your package.json.
-
 exports.handler = async (event, context) => {
     // Check for POST request
     if (event.httpMethod !== 'POST') {
@@ -13,6 +10,14 @@ exports.handler = async (event, context) => {
     }
 
     try {
+        // Parse the request body
+        const body = JSON.parse(event.body);
+        const currentClientSecret = body.currentClientSecret;
+
+        if (!currentClientSecret) {
+            throw new Error("currentClientSecret is required for refresh");
+        }
+
         // Retrieve API keys from Netlify's environment variables
         const apiKey = process.env.OPENAI_API_KEY;
         const chatkitWorkflowId = process.env.CHATKIT_WORKFLOW_ID;
@@ -26,18 +31,19 @@ exports.handler = async (event, context) => {
 
         const openai = new OpenAI({ apiKey });
 
-        // Create the ChatKit session
+        // Refresh the ChatKit session
         const session = await openai.chatkit.sessions.create({
-            workflow_id: chatkitWorkflowId
+            workflow_id: chatkitWorkflowId,
+            client_secret: currentClientSecret
         });
 
-        // Return the client_secret from the secure backend
+        // Return the new client_secret from the secure backend
         return {
             statusCode: 200,
             body: JSON.stringify({ client_secret: session.client_secret })
         };
     } catch (error) {
-        console.error("Error creating ChatKit session:", error);
+        console.error("Error refreshing ChatKit session:", error);
         return {
             statusCode: 500,
             body: JSON.stringify({ error: error.message })
