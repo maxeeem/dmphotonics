@@ -1,37 +1,59 @@
-# Netlify Function - ChatKit Session
+# Netlify Functions - ChatKit Session Management
 
-This repository includes a Netlify Function that creates ChatKit sessions using the OpenAI API.
+This repository includes Netlify Functions that create and refresh ChatKit sessions using the OpenAI API.
 
 ## Files Added
 
-- `functions/chatkit-session.js` - Serverless function handler
+- `functions/chatkit-start.js` - Serverless function to create new ChatKit sessions
+- `functions/chatkit-refresh.js` - Serverless function to refresh existing ChatKit sessions
 - `package.json` - Dependencies configuration
 - `.gitignore` - Excludes node_modules and build artifacts
 
 ## Function Details
 
-### Endpoint
-`POST /.netlify/functions/chatkit-session`
+### Start Session Endpoint
+`POST /.netlify/functions/chatkit-start`
 
-### Required Environment Variables
-Configure these in your Netlify dashboard under Site Settings > Environment Variables:
+Creates a new ChatKit session.
 
-- `OPENAI_API_KEY` - Your OpenAI API key
-- `CHATKIT_WORKFLOW_ID` - Your ChatKit workflow ID
-
-### Request
+#### Request
 ```bash
-POST /.netlify/functions/chatkit-session
+POST /.netlify/functions/chatkit-start
 Content-Type: application/json
 ```
 
-### Response
+#### Response
 **Success (200):**
 ```json
 {
   "client_secret": "session_secret_here"
 }
 ```
+
+### Refresh Session Endpoint
+`POST /.netlify/functions/chatkit-refresh`
+
+Refreshes an existing ChatKit session.
+
+#### Request
+```bash
+POST /.netlify/functions/chatkit-refresh
+Content-Type: application/json
+
+{
+  "currentClientSecret": "existing_session_secret"
+}
+```
+
+#### Response
+**Success (200):**
+```json
+{
+  "client_secret": "new_session_secret_here"
+}
+```
+
+### Error Responses
 
 **Method Not Allowed (405):**
 ```json
@@ -47,6 +69,12 @@ Content-Type: application/json
 }
 ```
 
+## Required Environment Variables
+Configure these in your Netlify dashboard under Site Settings > Environment Variables:
+
+- `OPENAI_API_KEY` - Your OpenAI API key
+- `CHATKIT_WORKFLOW_ID` - Your ChatKit workflow ID
+
 ## Deployment
 
 1. **Push to Repository** (Already done)
@@ -60,13 +88,23 @@ Content-Type: application/json
 3. **Deploy**
    - Netlify will automatically detect the `functions/` directory
    - The `openai` package will be installed during build
-   - Function will be available at `/.netlify/functions/chatkit-session`
+   - Functions will be available at:
+     - `/.netlify/functions/chatkit-start`
+     - `/.netlify/functions/chatkit-refresh`
 
 ## Testing
 
 ```bash
-# Test the function (replace with your Netlify URL)
-curl -X POST https://your-site.netlify.app/.netlify/functions/chatkit-session
+# Test the start function (replace with your Netlify URL)
+curl -X POST https://your-site.netlify.app/.netlify/functions/chatkit-start
+
+# Expected response
+{"client_secret": "..."}
+
+# Test the refresh function
+curl -X POST https://your-site.netlify.app/.netlify/functions/chatkit-refresh \
+  -H "Content-Type: application/json" \
+  -d '{"currentClientSecret": "existing_secret"}'
 
 # Expected response
 {"client_secret": "..."}
@@ -75,7 +113,7 @@ curl -X POST https://your-site.netlify.app/.netlify/functions/chatkit-session
 ## Security
 
 - API keys are stored securely in Netlify environment variables
-- The function validates all required environment variables before execution
+- The functions validate all required environment variables before execution
 - Proper error handling prevents exposure of sensitive information
 - Code has been scanned for security vulnerabilities (0 found)
 
